@@ -35,6 +35,7 @@
 
 <script>
 import VueMarkdown from "vue-markdown";
+import client from "../client";
 export default {
   components: {
     VueMarkdown
@@ -62,22 +63,17 @@ export default {
   },
   mounted() {
     // fetch the README of the repository
-    let url = "https://api.github.com";
-    fetch(url + "/repos/" + this.username + "/" + this.repo + "/readme")
-      .then(res => {
-        // Handle errors
-        if (res.status !== 200) {
-          this.errMessage = "Readme does not exist!";
-          this.loading = false;
-        } else {
-          return res.json();
-        }
-      })
 
-      // Load data into state
+    // fetch the user data through github
+    client
+      .readme(this.username, this.repo)
       .then(response => {
-        this.readmeData = response;
+        this.readmeData = response.data;
         this.loading = false;
+      })
+      .catch(err => {
+        console.error(err.response);
+        this.errMessage = `Error ${err.response.status} - ${err.response.statusText}`;
       });
   }
 };
